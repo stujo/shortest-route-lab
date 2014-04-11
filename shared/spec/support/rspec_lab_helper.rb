@@ -16,7 +16,6 @@ module RSpecLabHelper
 
       if @requirePaths.nil?
         @requirePaths = []
-        @requirePaths.push labPath + "/*.rb"
         @requirePaths.push "#{labPath}/lib/*.rb" if Dir.exist?(labPath + "/lib/")
       end
 
@@ -31,12 +30,13 @@ module RSpecLabHelper
         # config.run_all_when_everything_filtered = true
         # config.filter_run :focus
         config.order = 'defined'
+        config.fail_fast = true
       end
       self
     end
 
     def loadSharedRSpecExamples
-      shared_examples = "#{@projectPath}/shared/spec/support/**/*.rb"
+      shared_examples = "#{@projectPath}/shared/spec/**/*.rb"
 
       puts "Loading shared tests from #{shared_examples}"
       Dir[shared_examples].sort.each do |f|
