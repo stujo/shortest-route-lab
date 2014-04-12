@@ -1,4 +1,19 @@
-No examples found.
 
-Finished in 0.00005 seconds
-0 examples, 0 failures
+Atlas
+  should keep track of cities like sf
+  should keep track of cities like la
+  should know that citya and cityb are neighbors
+  should know that cityb and citya are neighbors
+  should know that la and sandiego are neighbors
+  should know that sf and sandiego are not neighbors
+  should know the distance between la and sf
+  should know the distance between la and sandiego
+  should know the distance between bakersfield to la
+  should know the distance between la and bakersfield
+  should not know the distance between sf and sandiego
+
+RSpec Config
+  is running ok
+
+Finished in 0.00293 seconds
+12 examples, 0 failures

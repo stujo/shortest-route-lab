@@ -17,6 +17,7 @@ module RSpecLabHelper
       if @requirePaths.nil?
         @requirePaths = []
         @requirePaths.push "#{labPath}/lib/*.rb" if Dir.exist?(labPath + "/lib/")
+        @requirePaths.push "#{@projectPath}/shared/lib/*.rb" if Dir.exist?("#{@projectPath}/shared/lib")
       end
 
       setupRspec
