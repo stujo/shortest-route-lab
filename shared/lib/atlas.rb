@@ -9,6 +9,14 @@ class Neighbour
     @distance = distance
   end
 
+  def self.push_all_to_array next_neighbor, container
+    if next_neighbor
+      container << next_neighbor
+      push_all_to_array next_neighbor.next_neighbor, container
+    end
+  end
+
+
   def self.includes? next_neighbor, city
     if next_neighbor && city
       if next_neighbor.city.id == city.id
@@ -21,10 +29,21 @@ class Neighbour
     end
   end
 
+  def to_s
+    "To #{@city.name} #{@distance}"
+  end
+
+  def self.each_neighbor next_neighbor, block
+    if next_neighbor
+      block.call(next_neighbor)
+      each_neighbor next_neighbor.next_neighbor, block
+    end
+  end
 end
 
 class City
-  attr_reader :name, :id, :neighbor_linked_list, :data
+  attr_reader :name, :id, :neighbor_linked_list
+  attr_accessor :data
 
   def initialize(id, name)
     @id = id
@@ -46,9 +65,27 @@ class City
     neighbor.distance unless neighbor.nil?
   end
 
+  def push_neighbors_to_array container
+    Neighbour.push_all_to_array @neighbor_linked_list, container
+  end
+
+  def distanceToNeighbor city
+    find_neighbor(city).distance
+  end
+
+  def each_neighbor(&block)
+    Neighbour.each_neighbor @neighbor_linked_list, block
+  end
+
+  def to_s
+    "#{name}"
+  end
+
 end
 
 class Atlas
+  attr_reader :cities
+
   def initialize
     @cities = []
     @index = {}
@@ -72,6 +109,14 @@ class Atlas
   def add_neighbors(citya, cityb, distance)
     citya.add_neighbor(cityb, distance)
     cityb.add_neighbor(citya, distance)
+  end
+
+  def reset_data
+    @cities.each { |city| city.data= nil }
+  end
+
+  def dump_data
+    @cities.each { |city| puts "#{city.name} : #{city.data.inspect}" }
   end
 
 

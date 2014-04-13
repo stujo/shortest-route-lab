@@ -8,49 +8,94 @@ describe Atlas do
     @sanDiego = @california.find_city_by_name "San Diego"
     @bakersfield = @california.find_city_by_name "Bakersfield"
   end
+  describe "keeps track of cities" do
+    it "like sf" do
+      expect(@california.find_city_by_id @sf.id).to be @sf
+    end
 
-  it "should keep track of cities like sf" do
-    expect(@california.find_city_by_id @sf.id).to be @sf
+    it "like la" do
+      expect(@california.find_city_by_id @la.id).to be @la
+    end
   end
 
-  it "should keep track of cities like la" do
-    expect(@california.find_city_by_id @la.id).to be @la
+  describe "keeps track of neighbors" do
+    it "that la and sandiego are neighbors" do
+      expect(@sanDiego.find_neighbor @la).not_to be nil
+    end
+
+    it "that sandiego and la are neighbors" do
+      expect(@la.find_neighbor @sanDiego).not_to be nil
+    end
+
+    it "that sf and sandiego are not neighbors" do
+      expect(@sanDiego.find_neighbor @sf).to be nil
+    end
   end
 
-  it "should know that citya and cityb are neighbors" do
-    expect(@sf.find_neighbor @la).not_to be nil
+
+  describe "knows the distance" do
+
+    it "between la and sandiego" do
+      expect(@sanDiego.neighbor_distance_to @la).to eq 121.2
+    end
+
+    it "between bakersfield to la" do
+      expect(@bakersfield.neighbor_distance_to @la).to eq 111.7
+    end
+
+    it "between la and bakersfield" do
+      expect(@la.neighbor_distance_to @bakersfield).to eq 111.7
+    end
+
+    it "between sf and sandiego in undefined" do
+      expect(@sf.neighbor_distance_to @sanDiego).to be nil
+    end
   end
 
-  it "should know that cityb and citya are neighbors" do
-    expect(@la.find_neighbor @sf).not_to be nil
+  describe "stores data on a city" do
+    before :all do
+      @bakersfield.data= {visited: true}
+      @sanDiego.data= {visited: false}
+    end
+
+    it "knows bakersfield data" do
+      expect(@bakersfield.data).to eq({visited: true})
+    end
+    it "knows San Diego data" do
+      expect(@sanDiego.data).to eq({visited: false})
+    end
+    it "knows San Francisco data" do
+      expect(@sf.data).to be nil
+    end
+
+    after :all do
+      @california.reset_data
+    end
   end
 
-  it "should know that la and sandiego are neighbors" do
-    expect(@sanDiego.find_neighbor @la).not_to be nil
+  describe "resets all data" do
+    before :all do
+      @bakersfield.data= {visited: true}
+      @sanDiego.data= {visited: false}
+      @california.reset_data
+    end
+
+    it "knows bakersfield data" do
+      expect(@bakersfield.data).to be nil
+    end
+    it "knows San Diego data" do
+      expect(@sanDiego.data).to be nil
+    end
+    it "knows San Francisco data" do
+      expect(@sf.data).to be nil
+    end
+
+    after :all do
+    end
   end
 
-  it "should know that sf and sandiego are not neighbors" do
-    expect(@sanDiego.find_neighbor @sf).to be nil
-  end
 
-  it "should know the distance between la and sf" do
-    expect(@sf.neighbor_distance_to @la).to eq 380.9
-  end
 
-  it "should know the distance between la and sandiego" do
-    expect(@sanDiego.neighbor_distance_to @la).to eq 121.2
-  end
 
-  it "should know the distance between bakersfield to la" do
-    expect(@bakersfield.neighbor_distance_to @la).to eq 111.7
   end
-
-  it "should know the distance between la and bakersfield" do
-    expect(@la.neighbor_distance_to @bakersfield).to eq 111.7
-  end
-
-  it "should not know the distance between sf and sandiego" do
-    expect(@sf.neighbor_distance_to @sanDiego).to be nil
-  end
-end
 

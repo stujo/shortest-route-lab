@@ -1,19 +1,39 @@
 
 Atlas
-  should keep track of cities like sf
-  should keep track of cities like la
-  should know that citya and cityb are neighbors
-  should know that cityb and citya are neighbors
-  should know that la and sandiego are neighbors
-  should know that sf and sandiego are not neighbors
-  should know the distance between la and sf
-  should know the distance between la and sandiego
-  should know the distance between bakersfield to la
-  should know the distance between la and bakersfield
-  should not know the distance between sf and sandiego
+  keeps track of cities
+    like sf
+    like la
+  keeps track of neighbors
+    that la and sandiego are neighbors
+    that sandiego and la are neighbors
+    that sf and sandiego are not neighbors
+  knows the distance
+    between la and sandiego
+    between bakersfield to la
+    between la and bakersfield
+    between sf and sandiego in undefined
+  stores data on a city
+    knows bakersfield data
+    knows San Diego data
+    knows San Francisco data
+  resets all data
+    knows bakersfield data
+    knows San Diego data
+    knows San Francisco data
 
-RSpec Config
-  is running ok
+GPSGuide
+  can get from la to sf
+    with the correct shortest distance
+    on the shortest route
+  can get from san diego to sf
+    with the correct shortest distance
+    on the shortest route
+  knows the shortest distance
+    between san jose and sf
+    between bakersfield and sf
+    between bakersfield and san diego
+    between bakersfield and la
+    between fresno and san diego
 
-Finished in 0.00293 seconds
-12 examples, 0 failures
+Finished in 0.00605 seconds
+24 examples, 0 failures
