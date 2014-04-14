@@ -1,6 +1,5 @@
 module RSpecLabHelper
-
-  def self.setupLab labSpecFolder, title
+  def self.setupLab(labSpecFolder, title)
     RSpecLab.new File.dirname(labSpecFolder), title
   end
 
@@ -16,7 +15,7 @@ module RSpecLabHelper
 
       if @requirePaths.nil?
         @requirePaths = []
-        @requirePaths.push "#{labPath}/lib/*.rb" if Dir.exist?(labPath + "/lib/")
+        @requirePaths.push "#{labPath}/lib/*.rb" if Dir.exist?(labPath + '/lib/')
         @requirePaths.push "#{@projectPath}/shared/lib/*.rb" if Dir.exist?("#{@projectPath}/shared/lib")
       end
 
@@ -45,7 +44,6 @@ module RSpecLabHelper
         require f
       end
     end
-
 
     def loadCodeToTest
       @requirePaths.each do |path|

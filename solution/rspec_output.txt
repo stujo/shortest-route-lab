@@ -31,5 +31,5 @@ GPSGuide
     returns nil
     returns nil
 
-Finished in 0.00733 seconds
+Finished in 0.00709 seconds
 21 examples, 0 failures

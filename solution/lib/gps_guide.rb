@@ -1,109 +1,120 @@
+# GPSGuide: Service to navigate Atlas objects
 class GPSGuide
-
   # A instance of a shortest path search
   # Stores current fringe and visitation data
   class Exploration
     attr_reader :trip
 
-    def initialize atlas, fromCity, toCity
-      @trip = TripInfo.new(atlas.find_city_by_name(fromCity), atlas.find_city_by_name(toCity))
+    def initialize(atlas, from_city, to_city)
+      @trip = TripInfo.new(atlas.find_city_by_name(from_city),
+                           atlas.find_city_by_name(to_city))
     end
 
     def valid?
       @trip.valid?
     end
 
-    def fringe_candidate city
-      if !@visitCache.has_key? city
-        @visitCache[city] = {visited: false, distance: nil}
+    def fringe_candidate(city)
+      if !@cache.key? city
+        @cache[city] = { visited: false, distance: nil }
         @fringe << city
-      elsif @visitCache[city][:visited] == false
+      elsif @cache[city][:visited] == false
         @fringe << city
       end
     end
 
-    # Find the best closest city in the fringe and pop out for our next iteration
+    # Find the best closest city in the fringe and
+    # pop out for our next iteration
     def pop_closest_from_fringe
-      closestUnvisitedCity = nil
+      next_city = nil
       @fringe.each do |city|
-        if closestUnvisitedCity.nil? || @visitCache[city][:distance] < @visitCache[closestUnvisitedCity][:distance]
-          closestUnvisitedCity = city
+        if next_city.nil? ||
+            @cache[city][:distance] < @cache[next_city][:distance]
+          next_city = city
         end
       end
-      @fringe.delete(closestUnvisitedCity) unless closestUnvisitedCity.nil?
-      closestUnvisitedCity
+      @fringe.delete(next_city) unless next_city.nil?
+      next_city
     end
 
     def describe_route_to_trip_info
-      if @visitCache[trip.to_city][:visited]
+      if @cache[trip.to_city][:visited]
         route = []
         cursor = trip.to_city
         while cursor
           route << cursor.name
-          cursor = @visitCache[cursor][:previous]
+          cursor = @cache[cursor][:previous]
         end
         route.reverse!
-        @trip.setRoute(@visitCache[trip.to_city][:distance], route)
+        @trip.setRoute(@cache[trip.to_city][:distance], route)
+      end
+    end
+
+    def update_neighbor_distances(current_city)
+      # Update the distances on the fringe and pick the closest neighbor
+      current_city.each_neighbor do |neighbor|
+
+        # Calc distance from current_city to city
+        city_dist = neighbor.distance + @cache[current_city][:distance]
+
+        # if that distance is less than the current best route to this city
+        # then replace it
+        if @cache[neighbor.city][:distance].nil? ||
+            city_dist < @cache[neighbor.city][:distance]
+          @cache[neighbor.city][:distance] = city_dist
+          @cache[neighbor.city][:previous] = current_city
+        end
+      end
+    end
+
+    def init_plan
+      @cache = {}
+      @fringe = Set.new
+      current_city = @trip.from_city
+      @cache[current_city] = { visited: true, previous: nil, distance: 0 }
+
+      # Initialize an empty fringe set
+      # Add the neighbors of the starting city to the fringe
+      add_neighbors_to_fringe current_city
+      current_city
+    end
+
+    def add_neighbors_to_fringe(city)
+      city.each_neighbor do |neighbor|
+        fringe_candidate neighbor.city
       end
     end
 
     def plan!
-      @visitCache = {}
-      currentCity = @trip.from_city
-      @fringe = Set.new
-      @visitCache[currentCity] = {visited: true, previous: nil, distance: 0}
-
-      # Initialize an empty fringe set
-      # Add the neighbors of the starting city to the fringe
-      currentCity.each_neighbor do |neighbor|
-        fringe_candidate neighbor.city
-      end
+      current_city = init_plan
 
       # While We have things in the fringe keep looking
-      while !@fringe.empty?
+      until @fringe.empty?
 
-        #Update the distances on the fringe and pick the closest neighbor
-        currentCity.each_neighbor do |neighbor|
-
-          # Calc distance from currentCity to city
-          cityDistance = neighbor.distance + @visitCache[currentCity][:distance]
-
-          # if that distance is less than the current best route to this city
-          # then replace it
-          if (@visitCache[neighbor.city][:distance].nil? || cityDistance < @visitCache[neighbor.city][:distance])
-            @visitCache[neighbor.city][:distance] = cityDistance
-            @visitCache[neighbor.city][:previous] = currentCity
-          end
-        end
+        update_neighbor_distances current_city
 
         # Find the fringe city with the lowest total distance
-        currentCity = pop_closest_from_fringe
+        current_city = pop_closest_from_fringe
 
-        unless currentCity.nil?
+        unless current_city.nil?
           # Mark as visited
-          @visitCache[currentCity][:visited] = true
+          @cache[current_city][:visited] = true
           # Add neighbors to fringe
-          currentCity.each_neighbor do |neighbor|
-            fringe_candidate neighbor.city
-          end
+          add_neighbors_to_fringe current_city
         end
-      end #while have unfinished cities in the fringe
+      end # while have unfinished cities in the fringe
 
       describe_route_to_trip_info
     end
-
   end
-
 
   # Using the atlas graph, return a TripInfo object
   # with the initialized state
-  def self.shortest_distance(atlas, fromCity, toCity)
+  def self.shortest_distance(atlas, from_city, to_city)
+    exploration = Exploration.new atlas, from_city, to_city
 
-    exploration = Exploration.new atlas, fromCity, toCity
+    exploration.plan! if exploration.trip.valid?
 
-    if exploration.trip.valid?
-      exploration.plan!
-    end
     exploration.trip
   end
 end
