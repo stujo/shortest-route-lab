@@ -1,14 +1,52 @@
 class GPSGuide
 
+
+  # Check that this city hasn't been visited and if not,
+  # set up the data we use and add it to the set
+  def self.fringe_candidate city, fringe
+    if city.data == nil
+      city.data = {visited: false, distance: nil}
+      fringe << city
+    elsif city.data[:visited] == false
+      fringe << city
+    end
+  end
+
+  # Find the best closest city in the fringe and pop out for our next iteration
+  def self.pop_closest_from_fringe fringe
+    closestUnvisitedCity = nil
+    fringe.each do |city|
+      if closestUnvisitedCity.nil? || city.data[:distance] < closestUnvisitedCity.data[:distance]
+        closestUnvisitedCity = city
+      end
+    end
+    fringe.delete(closestUnvisitedCity) unless closestUnvisitedCity.nil?
+    closestUnvisitedCity
+  end
+
+  def self.describe_route_to_trip_info trip
+    if trip.to_city.data[:visited]
+      route = []
+      cursor = trip.to_city
+      while cursor
+        route << cursor.name
+        cursor = cursor.data[:previous]
+      end
+      route.reverse!
+      trip.setRoute(trip.to_city.data[:distance], route)
+    end
+  end
+
+
+  # Using the atlas graph, return a TripInfo object
+  # with the initialized state
   def self.shortestDistance(atlas, fromCity, toCity)
 
-    trip = TripInfo.new( atlas.find_city_by_name(fromCity), atlas.find_city_by_name(toCity))
+    trip = TripInfo.new(atlas.find_city_by_name(fromCity), atlas.find_city_by_name(toCity))
 
     if trip.valid?
-      # Set up the data
-      atlas.cities.each do |city|
-        city.data = {visited: false, previous: nil, distance: nil}
-      end
+
+      visitCache = {}
 
       currentCity = trip.from_city
       currentCity.data= {visited: true, previous: nil, distance: 0}
@@ -17,7 +55,7 @@ class GPSGuide
       # Add the neighbors of the starting city to the fringe
       fringe = Set.new
       currentCity.each_neighbor do |neighbor|
-        fringe << neighbor.city
+        fringe_candidate neighbor.city, fringe
       end
 
       # While We have things in the fringe keep looking
@@ -29,6 +67,8 @@ class GPSGuide
           # Calc distance from currentCity to city
           cityDistance = neighbor.distance + currentCity.data[:distance]
 
+          # if that distance is less than the current best route to this city
+          # then replace it
           if (neighbor.city.data[:distance].nil? || cityDistance < neighbor.city.data[:distance])
             neighbor.city.data[:distance] = cityDistance
             neighbor.city.data[:previous] = currentCity
@@ -36,38 +76,22 @@ class GPSGuide
           end
         end
 
-        # Find the next fringe city with the lowest distance
-        closestUnvisitedCity = nil
-        fringe.each do |city|
-          unless city.data[:visited]
-            if closestUnvisitedCity.nil? || city.data[:distance] < closestUnvisitedCity.data[:distance]
-              closestUnvisitedCity = city
-            end
-          end
-        end
+        # Find the fringe city with the lowest total distance
+        currentCity = pop_closest_from_fringe fringe
 
-        #Take Best Neighbor out of the fringe and repeat
-        unless closestUnvisitedCity.nil?
-          fringe.delete(closestUnvisitedCity)
-          closestUnvisitedCity.data[:visited] = true
-          closestUnvisitedCity.each_neighbor do |neighbor|
-            fringe << neighbor.city unless neighbor.city.data[:visited]
+        unless currentCity.nil?
+          # Mark as visited
+          currentCity.data[:visited] = true
+          # Add neighbors to fringe
+          currentCity.each_neighbor do |neighbor|
+            fringe_candidate neighbor.city, fringe
           end
-          currentCity = closestUnvisitedCity
         end
       end #while have unfinished cities in the fringe
 
-      if trip.to_city.data[:visited]
-        route = []
-        cursor = trip.to_city
-        while cursor
-          route << cursor.name
-          cursor = cursor.data[:previous]
-        end
-        route.reverse!
-        trip.setRoute(trip.to_city.data[:distance],  route)
-      end
+      describe_route_to_trip_info trip
 
+      #clear our data from the atlas
       atlas.reset_data
     end
     trip

@@ -35,5 +35,5 @@ GPSGuide
     between bakersfield and la
     between fresno and san diego
 
-Finished in 0.00605 seconds
+Finished in 0.00527 seconds
 24 examples, 0 failures
