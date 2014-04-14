@@ -43,13 +43,11 @@ end
 
 class City
   attr_reader :name, :id, :neighbor_linked_list
-  attr_accessor :data
 
   def initialize(id, name)
     @id = id
     @name = name
     @neighbor_linked_list = nil
-    @data = nil
   end
 
   def add_neighbor(city, distance)
@@ -110,15 +108,4 @@ class Atlas
     citya.add_neighbor(cityb, distance)
     cityb.add_neighbor(citya, distance)
   end
-
-  def reset_data
-    @cities.each { |city| city.data= nil }
-  end
-
-  def dump_data
-    @cities.each { |city| puts "#{city.name} : #{city.data.inspect}" }
-  end
-
-
-
 end

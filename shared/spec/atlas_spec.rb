@@ -51,51 +51,5 @@ describe Atlas do
       expect(@sf.neighbor_distance_to @sanDiego).to be nil
     end
   end
-
-  describe "stores data on a city" do
-    before :all do
-      @bakersfield.data= {visited: true}
-      @sanDiego.data= {visited: false}
-    end
-
-    it "knows bakersfield data" do
-      expect(@bakersfield.data).to eq({visited: true})
-    end
-    it "knows San Diego data" do
-      expect(@sanDiego.data).to eq({visited: false})
-    end
-    it "knows San Francisco data" do
-      expect(@sf.data).to be nil
-    end
-
-    after :all do
-      @california.reset_data
-    end
-  end
-
-  describe "resets all data" do
-    before :all do
-      @bakersfield.data= {visited: true}
-      @sanDiego.data= {visited: false}
-      @california.reset_data
-    end
-
-    it "knows bakersfield data" do
-      expect(@bakersfield.data).to be nil
-    end
-    it "knows San Diego data" do
-      expect(@sanDiego.data).to be nil
-    end
-    it "knows San Francisco data" do
-      expect(@sf.data).to be nil
-    end
-
-    after :all do
-    end
-  end
-
-
-
-
-  end
+end
 
