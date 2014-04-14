@@ -12,14 +12,6 @@ Atlas
     between bakersfield to la
     between la and bakersfield
     between sf and sandiego in undefined
-  stores data on a city
-    knows bakersfield data
-    knows San Diego data
-    knows San Francisco data
-  resets all data
-    knows bakersfield data
-    knows San Diego data
-    knows San Francisco data
 
 GPSGuide
   can get from la to sf
@@ -34,6 +26,10 @@ GPSGuide
     between bakersfield and san diego
     between bakersfield and la
     between fresno and san diego
+  can handle invalid input gracefully
+    returns nil
+    returns nil
+    returns nil
 
-Finished in 0.00527 seconds
-24 examples, 0 failures
+Finished in 0.0052 seconds
+21 examples, 0 failures
